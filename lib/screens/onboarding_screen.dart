@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
 const Color pink = Color(0xFFE88BA8);
 const Color darkPink = Color(0xFFD96F91);
@@ -7,6 +8,7 @@ const Color darkGreen = Color(0xFF426B59);
 const Color background = Color(0xFFFFFBF8);
 const Color softPink = Color(0xFFFFEEF3);
 const Color softGreen = Color(0xFFEAF4EF);
+
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
@@ -57,12 +59,7 @@ class _LandingPageState extends State<LandingPage> {
                   currentPage = index;
                 });
               },
-              children: const [
-                PageOne(),
-                PageTwo(),
-                PageThree(),
-                PageFour(),
-              ],
+              children: const [PageOne(), PageTwo(), PageThree(), PageFour()],
             ),
 
             // Page indicators
@@ -169,11 +166,7 @@ class PageOne extends StatelessWidget {
               ),
               child: const Row(
                 children: [
-                  Icon(
-                    Icons.favorite,
-                    color: darkPink,
-                    size: 35,
-                  ),
+                  Icon(Icons.favorite, color: darkPink, size: 35),
                   SizedBox(width: 15),
                   Expanded(
                     child: Text(
@@ -205,11 +198,7 @@ class PageOne extends StatelessWidget {
                       color: softPink,
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const Icon(
-                      Icons.person,
-                      size: 100,
-                      color: pink,
-                    ),
+                    child: const Icon(Icons.person, size: 100, color: pink),
                   );
                 },
               ),
@@ -268,10 +257,7 @@ class PageTwo extends StatelessWidget {
 
             const Text(
               'PCOS can affect different people in different ways.',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
 
             const SizedBox(height: 22),
@@ -310,22 +296,13 @@ class PageTwo extends StatelessWidget {
                   icon: Icons.calendar_month,
                   title: 'Irregular periods',
                 ),
-                _SymptomCard(
-                  icon: Icons.face,
-                  title: 'Acne',
-                ),
-                _SymptomCard(
-                  icon: Icons.content_cut,
-                  title: 'Hair growth',
-                ),
+                _SymptomCard(icon: Icons.face, title: 'Acne'),
+                _SymptomCard(icon: Icons.content_cut, title: 'Hair growth'),
                 _SymptomCard(
                   icon: Icons.monitor_weight,
                   title: 'Weight changes',
                 ),
-                _SymptomCard(
-                  icon: Icons.spa,
-                  title: 'Hair thinning',
-                ),
+                _SymptomCard(icon: Icons.spa, title: 'Hair thinning'),
                 _SymptomCard(
                   icon: Icons.favorite_border,
                   title: 'Mood changes',
@@ -343,11 +320,7 @@ class PageTwo extends StatelessWidget {
               ),
               child: const Row(
                 children: [
-                  Icon(
-                    Icons.lightbulb_outline,
-                    color: darkGreen,
-                    size: 30,
-                  ),
+                  Icon(Icons.lightbulb_outline, color: darkGreen, size: 30),
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -414,8 +387,7 @@ class PageThree extends StatelessWidget {
             const _FeatureCard(
               icon: Icons.restaurant_menu,
               title: 'Personalized Nutrition',
-              description:
-                  'Get nutrition guidance based on your personal health information and needs.',
+              description: 'Get nutrition guidance based on your personal health information and needs.',
             ),
 
             const SizedBox(height: 14),
@@ -423,8 +395,7 @@ class PageThree extends StatelessWidget {
             const _FeatureCard(
               icon: Icons.calendar_today,
               title: 'Menstrual Tracking',
-              description:
-                  'Track your menstrual cycle and identify unusual patterns over time.',
+              description: 'Track your menstrual cycle and identify unusual patterns over time.',
             ),
 
             const SizedBox(height: 14),
@@ -432,8 +403,7 @@ class PageThree extends StatelessWidget {
             const _FeatureCard(
               icon: Icons.psychology,
               title: 'PCOS Risk Insights',
-              description:
-                  'Use machine learning to estimate PCOS risk and understand important factors.',
+              description: 'Use machine learning to estimate PCOS risk and understand important factors.',
             ),
 
             const SizedBox(height: 14),
@@ -441,8 +411,7 @@ class PageThree extends StatelessWidget {
             const _FeatureCard(
               icon: Icons.description,
               title: 'Medical Report Analysis',
-              description:
-                  'Upload medical reports and extract relevant health parameters using OCR.',
+              description: 'Upload medical reports and extract relevant health parameters using OCR.',
             ),
 
             const SizedBox(height: 25),
@@ -457,11 +426,7 @@ class PageThree extends StatelessWidget {
               child: const Text(
                 'PCOSense is designed to support health awareness and informed decisions. It does not replace professional medical advice.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: darkGreen,
-                ),
+                style: TextStyle(fontSize: 13, height: 1.5, color: darkGreen),
               ),
             ),
           ],
@@ -520,11 +485,7 @@ class PageFour extends StatelessWidget {
                     color: softPink,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.favorite,
-                    size: 90,
-                    color: pink,
-                  ),
+                  child: const Icon(Icons.favorite, size: 90, color: pink),
                 );
               },
             ),
@@ -565,10 +526,7 @@ class PageFour extends StatelessWidget {
                 ),
                 child: const Text(
                   'Log In',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -590,20 +548,14 @@ class PageFour extends StatelessWidget {
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: darkGreen,
-                  side: const BorderSide(
-                    color: green,
-                    width: 1.5,
-                  ),
+                  side: const BorderSide(color: green, width: 1.5),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 child: const Text(
                   'Sign Up',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -612,26 +564,15 @@ class PageFour extends StatelessWidget {
 
             Row(
               children: [
-                Expanded(
-                  child: Divider(
-                    color: Colors.grey.shade300,
-                  ),
-                ),
+                Expanded(child: Divider(color: Colors.grey.shade300)),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     'OR',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ),
-                Expanded(
-                  child: Divider(
-                    color: Colors.grey.shade300,
-                  ),
-                ),
+                Expanded(child: Divider(color: Colors.grey.shade300)),
               ],
             ),
 
@@ -644,21 +585,14 @@ class PageFour extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            const SocialButton(
-              icon: Icons.apple,
-              text: 'Continue with Apple',
-            ),
+            const SocialButton(icon: Icons.apple, text: 'Continue with Apple'),
 
             const SizedBox(height: 20),
 
             const Text(
               'By continuing, you agree to our Terms of Service and Privacy Policy.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey,
-                height: 1.4,
-              ),
+              style: TextStyle(fontSize: 11, color: Colors.grey, height: 1.4),
             ),
           ],
         ),
@@ -751,8 +685,30 @@ class LoginScreen extends StatelessWidget {
 // SIGN UP SCREEN
 // ------------------------------------------------------------
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  final TextEditingController fullNameController =
+      TextEditingController();
+
+  final TextEditingController emailController =
+      TextEditingController();
+
+  final TextEditingController passwordController =
+      TextEditingController();
+
+  @override
+  void dispose() {
+    fullNameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -781,6 +737,7 @@ class SignUpScreen extends StatelessWidget {
             const SizedBox(height: 30),
 
             TextField(
+              controller: fullNameController,
               decoration: InputDecoration(
                 labelText: 'Full Name',
                 prefixIcon: const Icon(Icons.person_outline),
@@ -793,6 +750,7 @@ class SignUpScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             TextField(
+              controller: emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: 'Email',
@@ -806,6 +764,7 @@ class SignUpScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Password',
@@ -822,7 +781,23 @@ class SignUpScreen extends StatelessWidget {
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final result = await AuthService.signup(
+                    fullName: fullNameController.text.trim(),
+                    email: emailController.text.trim(),
+                    password: passwordController.text,
+                  );
+
+                   if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        result['message'] ?? 'Something went wrong',
+                      ),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: darkPink,
                   foregroundColor: Colors.white,
@@ -832,9 +807,7 @@ class SignUpScreen extends StatelessWidget {
                 ),
                 child: const Text(
                   'Create Account',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
             ),
@@ -844,7 +817,6 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 }
-
 // ------------------------------------------------------------
 // SMALL LOGO
 // ------------------------------------------------------------
@@ -859,15 +831,8 @@ class _LogoSmall extends StatelessWidget {
         Container(
           height: 35,
           width: 35,
-          decoration: BoxDecoration(
-            color: softPink,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.favorite,
-            size: 19,
-            color: darkPink,
-          ),
+          decoration: BoxDecoration(color: softPink, shape: BoxShape.circle),
+          child: const Icon(Icons.favorite, size: 19, color: darkPink),
         ),
         const SizedBox(width: 10),
         const Text(
@@ -891,10 +856,7 @@ class _ArrowButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
 
-  const _ArrowButton({
-    required this.icon,
-    required this.onPressed,
-  });
+  const _ArrowButton({required this.icon, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -907,11 +869,7 @@ class _ArrowButton extends StatelessWidget {
         customBorder: const CircleBorder(),
         child: Padding(
           padding: const EdgeInsets.all(11),
-          child: Icon(
-            icon,
-            color: darkGreen,
-            size: 20,
-          ),
+          child: Icon(icon, color: darkGreen, size: 20),
         ),
       ),
     );
@@ -926,10 +884,7 @@ class _SymptomImageCard extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  const _SymptomImageCard({
-    required this.icon,
-    required this.title,
-  });
+  const _SymptomImageCard({required this.icon, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -949,11 +904,7 @@ class _SymptomImageCard extends StatelessWidget {
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              size: 34,
-              color: darkPink,
-            ),
+            child: Icon(icon, size: 34, color: darkPink),
           ),
           const SizedBox(height: 10),
           Text(
@@ -979,10 +930,7 @@ class _SymptomCard extends StatelessWidget {
   final IconData icon;
   final String title;
 
-  const _SymptomCard({
-    required this.icon,
-    required this.title,
-  });
+  const _SymptomCard({required this.icon, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -991,17 +939,11 @@ class _SymptomCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.grey.shade200,
-        ),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: green,
-            size: 25,
-          ),
+          Icon(icon, color: green, size: 25),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -1059,11 +1001,7 @@ class _FeatureCard extends StatelessWidget {
               color: softGreen,
               borderRadius: BorderRadius.circular(15),
             ),
-            child: Icon(
-              icon,
-              color: darkGreen,
-              size: 25,
-            ),
+            child: Icon(icon, color: darkGreen, size: 25),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -1104,11 +1042,7 @@ class SocialButton extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const SocialButton({
-    super.key,
-    required this.icon,
-    required this.text,
-  });
+  const SocialButton({super.key, required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -1117,21 +1051,13 @@ class SocialButton extends StatelessWidget {
       height: 50,
       child: OutlinedButton.icon(
         onPressed: () {},
-        icon: Icon(
-          icon,
-          color: Colors.black87,
-        ),
+        icon: Icon(icon, color: Colors.black87),
         label: Text(
           text,
-          style: const TextStyle(
-            color: Colors.black87,
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: Colors.black87, fontSize: 14),
         ),
         style: OutlinedButton.styleFrom(
-          side: BorderSide(
-            color: Colors.grey.shade300,
-          ),
+          side: BorderSide(color: Colors.grey.shade300),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
