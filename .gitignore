@@ -51,3 +51,5 @@ app.*.map.json
 # Node.js backend
 backend/node_modules/
 backend/.env
+
+train_model/venv/
