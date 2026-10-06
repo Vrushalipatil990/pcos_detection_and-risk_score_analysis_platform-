@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'dashboard_screen.dart';
 
 const Color pink = Color(0xFFE88BA8);
 const Color darkPink = Color(0xFFD96F91);
@@ -605,8 +606,26 @@ class PageFour extends StatelessWidget {
 // LOGIN SCREEN
 // ------------------------------------------------------------
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController =
+  TextEditingController();
+
+  final TextEditingController passwordController =
+  TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -616,6 +635,7 @@ class LoginScreen extends StatelessWidget {
         backgroundColor: background,
         foregroundColor: darkGreen,
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(28),
         child: Column(
@@ -633,7 +653,9 @@ class LoginScreen extends StatelessWidget {
 
             const SizedBox(height: 35),
 
+            // Email
             TextField(
+              controller: emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 labelText: 'Email',
@@ -646,7 +668,9 @@ class LoginScreen extends StatelessWidget {
 
             const SizedBox(height: 18),
 
+            // Password
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Password',
@@ -663,7 +687,77 @@ class LoginScreen extends StatelessWidget {
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final email = emailController.text.trim();
+                  final password = passwordController.text;
+
+                  // Check email
+                  if (email.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter your email'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final emailRegex = RegExp(
+                    r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                  );
+
+                  if (!emailRegex.hasMatch(email)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Please enter a valid email address',
+                        ),
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Check password
+                  if (password.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter your password'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Call backend
+                  final result = await AuthService.login(
+                    email: email,
+                    password: password,
+                  );
+
+                  if (!context.mounted) return;
+
+                  // Login successful
+                  if (result['statusCode'] == 200) {
+                    final user = result['user'];
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DashboardScreen(
+                          userName: user['fullName'],
+                        ),
+                      ),
+                    );
+                  } else {
+                    // Login failed
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          result['message'] ?? 'Login failed',
+                        ),
+                      ),
+                    );
+                  }
+                },
+
                 style: ElevatedButton.styleFrom(
                   backgroundColor: darkPink,
                   foregroundColor: Colors.white,
@@ -671,6 +765,7 @@ class LoginScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
+
                 child: const Text('Log In'),
               ),
             ),
@@ -680,7 +775,6 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
-
 // ------------------------------------------------------------
 // SIGN UP SCREEN
 // ------------------------------------------------------------
@@ -738,6 +832,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
             TextField(
               controller: fullNameController,
+              keyboardType: TextInputType.name,
               decoration: InputDecoration(
                 labelText: 'Full Name',
                 prefixIcon: const Icon(Icons.person_outline),
@@ -782,22 +877,135 @@ class _SignUpScreenState extends State<SignUpScreen> {
               height: 52,
               child: ElevatedButton(
                 onPressed: () async {
-                  final result = await AuthService.signup(
-                    fullName: fullNameController.text.trim(),
-                    email: emailController.text.trim(),
-                    password: passwordController.text,
-                  );
+  final fullName = fullNameController.text.trim();
+  final email = emailController.text.trim();
+  final password = passwordController.text;
 
-                   if (!context.mounted) return;
+  // Full name validation
+  if (fullName.isEmpty) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Please enter your full name'),
+    ),
+  );
+  return;
+}
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        result['message'] ?? 'Something went wrong',
-                      ),
-                    ),
-                  );
-                },
+final nameRegex = RegExp(r'^[a-zA-Z]+(?: [a-zA-Z]+)*$');
+
+if (!nameRegex.hasMatch(fullName)) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text(
+        'Please enter a valid name using letters only',
+      ),
+    ),
+  );
+  return;
+}
+  // Email validation
+  if (email.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please enter your email'),
+      ),
+    );
+    return;
+  }
+
+  final emailRegex = RegExp(
+    r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+  );
+
+  if (!emailRegex.hasMatch(email)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please enter a valid email address'),
+      ),
+    );
+    return;
+  }
+
+  // Password validation
+  if (password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Please enter a password'),
+      ),
+    );
+    return;
+  }
+
+  if (password.length < 8) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Password must be at least 8 characters'),
+      ),
+    );
+    return;
+  }
+
+  if (!RegExp(r'[A-Z]').hasMatch(password)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Password must contain at least one uppercase letter',
+        ),
+      ),
+    );
+    return;
+  }
+
+  if (!RegExp(r'[a-z]').hasMatch(password)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Password must contain at least one lowercase letter',
+        ),
+      ),
+    );
+    return;
+  }
+
+  if (!RegExp(r'[0-9]').hasMatch(password)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Password must contain at least one number',
+        ),
+      ),
+    );
+    return;
+  }
+
+  if (!RegExp(r'[!@#$%^&*(),.?":{}|<>_\-]').hasMatch(password)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Password must contain at least one special character',
+        ),
+      ),
+    );
+    return;
+  }
+
+  // Everything is valid → call backend
+  final result = await AuthService.signup(
+    fullName: fullName,
+    email: email,
+    password: password,
+  );
+
+  if (!context.mounted) return;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        result['message'] ?? 'Something went wrong',
+      ),
+    ),
+  );
+},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: darkPink,
                   foregroundColor: Colors.white,

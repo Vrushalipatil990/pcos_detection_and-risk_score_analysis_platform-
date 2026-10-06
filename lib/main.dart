@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/onboarding_screen.dart';
+import 'screens/dashboard_screen.dart';
 
 const Color pink = Color(0xFFE88BA8);
 const Color darkPink = Color(0xFFD96F91);
