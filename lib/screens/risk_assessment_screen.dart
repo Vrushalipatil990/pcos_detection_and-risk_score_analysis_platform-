@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'questionnaire_screen.dart';
+
 const Color riskPurple = Color(0xFF6C35C9);
 const Color riskGreen = Color(0xFF3BA66B);
 const Color riskDark = Color(0xFF1D1930);
@@ -60,6 +62,29 @@ class RiskAssessmentScreen extends StatelessWidget {
               ),
             ),
 
+                      const SizedBox(height: 20),
+
+            // NO CARD
+            _buildOptionCard(
+              icon: Icons.person_outline,
+              title: 'No, I don’t have\nmedical reports',
+              description:
+                  'Answer a few questions about\nyour symptoms, lifestyle and\nperiods for risk assessment.',
+              buttonText: 'Continue without Reports →',
+              iconColor: riskPurple,
+              backgroundColor: const Color(0xFFF4EEFF),
+              buttonColor: riskPurple,
+              onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const QuestionnaireScreen(),
+    ),
+  );
+},
+            ),
+
+
             const SizedBox(height: 35),
 
             // YES CARD
@@ -77,23 +102,7 @@ class RiskAssessmentScreen extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 20),
-
-            // NO CARD
-            _buildOptionCard(
-              icon: Icons.person_outline,
-              title: 'No, I don’t have\nmedical reports',
-              description:
-                  'Answer a few questions about\nyour symptoms, lifestyle and\nperiods for risk assessment.',
-              buttonText: 'Continue without Reports →',
-              iconColor: riskPurple,
-              backgroundColor: const Color(0xFFF4EEFF),
-              buttonColor: riskPurple,
-              onPressed: () {
-                // We will add the questionnaire here later.
-              },
-            ),
-
+  
             const SizedBox(height: 25),
 
             // INFORMATION MESSAGE

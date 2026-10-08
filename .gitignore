@@ -59,3 +59,4 @@ train_model/pandas_test_env/
 
 # Local VS Code settings
 .vscode/
+.env

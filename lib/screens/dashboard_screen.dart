@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'risk_assessment_screen.dart';
 const Color dashboardBackground = Color(0xFFFAF8FC);
 const Color dashboardPurple = Color(0xFF6C35C9);
 const Color dashboardPink = Color(0xFFE84D9B);
@@ -19,6 +19,16 @@ class DashboardScreen extends StatelessWidget {
       backgroundColor: dashboardBackground,
 
       appBar: AppBar(
+        leading: Builder(
+  builder: (context) {
+    return IconButton(
+      icon: const Icon(Icons.menu),
+      onPressed: () {
+        Scaffold.of(context).openDrawer();
+      },
+    );
+  },
+),
         backgroundColor: dashboardBackground,
         elevation: 0,
         title: const Text(
@@ -43,8 +53,70 @@ class DashboardScreen extends StatelessWidget {
               child: Icon(Icons.person),
             ),
           ),
+          
         ],
       ),
+      drawer: Drawer(
+  child: ListView(
+    padding: EdgeInsets.zero,
+    children: [
+      DrawerHeader(
+        decoration: BoxDecoration(
+          color: dashboardPink,
+        ),
+        child: const Text(
+          'PCOSense',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+
+      ListTile(
+        leading: const Icon(Icons.dashboard),
+        title: const Text('Dashboard'),
+        onTap: () {
+          Navigator.pop(context);
+        },
+      ),
+
+      ListTile(
+        leading: const Icon(Icons.assessment),
+        title: const Text('Risk Assessment'),
+        onTap: () {
+          Navigator.pop(context);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const RiskAssessmentScreen(),
+            ),
+          );
+        },
+      ),
+
+      ListTile(
+        leading: const Icon(Icons.person),
+        title: const Text('Profile'),
+        onTap: () {
+          Navigator.pop(context);
+        },
+      ),
+
+      const Divider(),
+
+      ListTile(
+        leading: const Icon(Icons.logout),
+        title: const Text('Logout'),
+        onTap: () {
+          Navigator.pop(context);
+        },
+      ),
+    ],
+  ),
+),
 
 body: SafeArea(
   child: SingleChildScrollView(
