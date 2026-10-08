@@ -53,3 +53,9 @@ backend/node_modules/
 backend/.env
 
 train_model/venv/
+
+# Python virtual environment
+train_model/pandas_test_env/
+
+# Local VS Code settings
+.vscode/

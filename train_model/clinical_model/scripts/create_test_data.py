@@ -1,42 +1,30 @@
 import pandas as pd
 import numpy as np
 
-
-# ============================================================
-# PCOSense - Create Clinical Test Dataset
-# ============================================================
-
 DATA_FILE = "data/clinical_preprocessed.csv"
-OUTPUT_FILE = "data/clinical_test.csv"
+TRAIN_FILE = "data/clinical_train.csv"
+TEST_FILE = "data/clinical_test.csv"
 
+TARGET_COLUMN = "PCOS (Y/N)"
 
-# ------------------------------------------------------------
-# 1. Load preprocessed dataset
-# ------------------------------------------------------------
+# --------------------------------------------------
+# Load preprocessed clinical dataset
+# --------------------------------------------------
 
 df = pd.read_csv(DATA_FILE)
 
 print("Dataset shape:", df.shape)
 
-
-# ------------------------------------------------------------
-# 2. Separate target
-# ------------------------------------------------------------
-
-TARGET_COLUMN = "PCOS (Y/N)"
+# --------------------------------------------------
+# Create fixed stratified 80/20 split
+# --------------------------------------------------
 
 y = df[TARGET_COLUMN].astype(int)
-
-
-# ------------------------------------------------------------
-# 3. Create the same stratified 80/20 split
-# ------------------------------------------------------------
 
 np.random.seed(42)
 
 train_indices = []
 test_indices = []
-
 
 for class_value in [0, 1]:
 
@@ -46,52 +34,48 @@ for class_value in [0, 1]:
 
     np.random.shuffle(class_indices)
 
-    test_count = int(
-        len(class_indices) * 0.20
-    )
+    test_count = int(len(class_indices) * 0.20)
 
-    test_indices.extend(
-        class_indices[:test_count]
-    )
+    test_indices.extend(class_indices[:test_count])
+    train_indices.extend(class_indices[test_count:])
 
-    train_indices.extend(
-        class_indices[test_count:]
-    )
-
-
+# Convert to NumPy arrays
+train_indices = np.array(train_indices)
 test_indices = np.array(test_indices)
 
+# Shuffle both sets
+np.random.shuffle(train_indices)
 np.random.shuffle(test_indices)
 
+# --------------------------------------------------
+# Create train and test datasets
+# --------------------------------------------------
 
-# ------------------------------------------------------------
-# 4. Create test dataset
-# ------------------------------------------------------------
-
+train_data = df.iloc[train_indices].copy()
 test_data = df.iloc[test_indices].copy()
 
+# --------------------------------------------------
+# Save datasets
+# --------------------------------------------------
 
-# ------------------------------------------------------------
-# 5. Save test dataset
-# ------------------------------------------------------------
+train_data.to_csv(TRAIN_FILE, index=False)
+test_data.to_csv(TEST_FILE, index=False)
 
-test_data.to_csv(
-    OUTPUT_FILE,
-    index=False
-)
+# --------------------------------------------------
+# Display results
+# --------------------------------------------------
 
+print("\nDatasets created successfully!")
 
-# ------------------------------------------------------------
-# 6. Display results
-# ------------------------------------------------------------
+print("\nTraining samples:", len(train_data))
+print("Testing samples :", len(test_data))
 
-print("\nTest dataset created successfully!")
+print("\nTraining class distribution:")
+print(train_data[TARGET_COLUMN].value_counts())
 
-print("Testing samples:", len(test_data))
+print("\nTesting class distribution:")
+print(test_data[TARGET_COLUMN].value_counts())
 
-print("\nTest class distribution:")
-print(
-    test_data[TARGET_COLUMN].value_counts()
-)
-
-print("\nSaved to:", OUTPUT_FILE)
+print("\nSaved files:")
+print("Training:", TRAIN_FILE)
+print("Testing :", TEST_FILE)

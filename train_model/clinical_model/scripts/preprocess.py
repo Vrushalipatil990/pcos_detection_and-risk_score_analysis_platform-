@@ -1,25 +1,26 @@
 import pandas as pd
 
-
-# ============================================================
-# PCOSense - Clinical Dataset Preprocessing
-# ============================================================
+# --------------------------------------------------
+# File paths
+# --------------------------------------------------
 
 INPUT_FILE = "data/PCOS_extended_dataset.csv"
 OUTPUT_FILE = "data/clinical_preprocessed.csv"
 
+TARGET_COLUMN = "PCOS (Y/N)"
 
-# ------------------------------------------------------------
-# 1. Load dataset
-# ------------------------------------------------------------
+# --------------------------------------------------
+# Load dataset
+# --------------------------------------------------
+
 df = pd.read_csv(INPUT_FILE)
 
 print("Original dataset shape:", df.shape)
 
+# --------------------------------------------------
+# Drop unnecessary columns
+# --------------------------------------------------
 
-# ------------------------------------------------------------
-# 2. Remove identifier columns
-# ------------------------------------------------------------
 DROP_COLUMNS = [
     "Sl. No",
     "Patient File No."
@@ -27,13 +28,10 @@ DROP_COLUMNS = [
 
 df = df.drop(columns=DROP_COLUMNS)
 
+# --------------------------------------------------
+# Clean II beta-HCG
+# --------------------------------------------------
 
-# ------------------------------------------------------------
-# 3. Clean numeric columns stored as strings
-# ------------------------------------------------------------
-
-# II beta-HCG:
-# Correct malformed values such as "1.99." → "1.99"
 beta_hcg_col = "II    beta-HCG(mIU/mL)"
 
 df[beta_hcg_col] = (
@@ -47,9 +45,10 @@ df[beta_hcg_col] = pd.to_numeric(
     errors="coerce"
 )
 
+# --------------------------------------------------
+# Clean AMH
+# --------------------------------------------------
 
-# AMH:
-# Values such as "a" are treated as missing
 amh_col = "AMH(ng/mL)"
 
 df[amh_col] = pd.to_numeric(
@@ -57,59 +56,78 @@ df[amh_col] = pd.to_numeric(
     errors="coerce"
 )
 
+# --------------------------------------------------
+# Convert remaining numeric columns
+# --------------------------------------------------
 
-# ------------------------------------------------------------
-# 4. Handle missing values
-# ------------------------------------------------------------
+for column in df.columns:
 
-# Numeric columns
-numeric_columns = df.select_dtypes(
-    include=["int64", "float64"]
-).columns
+    if column == TARGET_COLUMN:
+        continue
 
-for column in numeric_columns:
-    if df[column].isnull().any():
-        df[column] = df[column].fillna(
-            df[column].median()
+    # Try converting object columns to numeric
+    if df[column].dtype == "object":
+
+        converted = pd.to_numeric(
+            df[column],
+            errors="coerce"
         )
 
+        # Use converted version if it is
+        # mostly numeric
+        if converted.notna().sum() > 0:
+            df[column] = converted
 
-# ------------------------------------------------------------
-# 5. Separate features and target
-# ------------------------------------------------------------
+# --------------------------------------------------
+# Ensure target is numeric
+# --------------------------------------------------
 
-TARGET_COLUMN = "PCOS (Y/N)"
-
-X = df.drop(columns=[TARGET_COLUMN])
-y = df[TARGET_COLUMN]
-
-
-# ------------------------------------------------------------
-# 6. Save preprocessed dataset
-# ------------------------------------------------------------
-
-processed_df = pd.concat(
-    [X, y],
-    axis=1
+df[TARGET_COLUMN] = pd.to_numeric(
+    df[TARGET_COLUMN],
+    errors="coerce"
 )
 
-processed_df.to_csv(
+# --------------------------------------------------
+# Display missing values
+#
+# IMPORTANT:
+# We do NOT fill missing values here.
+# XGBoost can handle NaN values directly.
+# --------------------------------------------------
+
+missing_values = df.isnull().sum()
+
+print("\nMissing values after cleaning:")
+
+print(
+    missing_values[
+        missing_values > 0
+    ]
+)
+
+print(
+    "\nTotal missing values:",
+    df.isnull().sum().sum()
+)
+
+# --------------------------------------------------
+# Save preprocessed dataset
+# --------------------------------------------------
+
+df.to_csv(
     OUTPUT_FILE,
     index=False
 )
 
-
-# ------------------------------------------------------------
-# 7. Display results
-# ------------------------------------------------------------
-
-print("Preprocessed dataset shape:", processed_df.shape)
-
-print("\nRemaining missing values:")
-print(processed_df.isnull().sum().sum())
+print(
+    "\nPreprocessed dataset shape:",
+    df.shape
+)
 
 print("\nPCOS distribution:")
-print(y.value_counts())
+print(
+    df[TARGET_COLUMN].value_counts()
+)
 
 print("\nPreprocessing completed successfully!")
 print("Saved to:", OUTPUT_FILE)
