@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class AuthService {
   // Android emulator uses 10.0.2.2 to reach your PC.
   static const String baseUrl = 'http://10.0.2.2:3000/api';
-
+  // static const String baseUrl = 'http://192.168.42.181';
   static Future<Map<String, dynamic>> signup({
     required String fullName,
     required String email,

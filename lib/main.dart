@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'screens/onboarding_screen.dart';
+import 'services/notification_service.dart';
 
 const Color pink = Color(0xFFE88BA8);
 const Color darkPink = Color(0xFFD96F91);
@@ -9,7 +11,9 @@ const Color background = Color(0xFFFFFBF8);
 const Color softPink = Color(0xFFFFEEF3);
 const Color softGreen = Color(0xFFEAF4EF);
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.initialize();
   runApp(const PCOSenseApp());
 }
 

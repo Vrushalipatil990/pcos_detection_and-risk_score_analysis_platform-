@@ -62,7 +62,25 @@ class RiskAssessmentScreen extends StatelessWidget {
               ),
             ),
 
-                      const SizedBox(height: 20),
+
+            const SizedBox(height: 35),
+
+            // YES CARD
+            _buildOptionCard(
+              icon: Icons.medical_information_outlined,
+              title: 'Yes, I have\nmedical reports',
+              description:
+                  'Provide your hormone test,\nultrasound and other clinical\ndetails for accurate prediction.',
+              buttonText: 'Continue with Reports →',
+              iconColor: riskGreen,
+              backgroundColor: const Color(0xFFEFFAF3),
+              buttonColor: riskGreen,
+              onPressed: () {
+                // We will add report upload here later.
+              },
+            ),
+
+                               const SizedBox(height: 20),
 
             // NO CARD
             _buildOptionCard(
@@ -82,24 +100,6 @@ class RiskAssessmentScreen extends StatelessWidget {
     ),
   );
 },
-            ),
-
-
-            const SizedBox(height: 35),
-
-            // YES CARD
-            _buildOptionCard(
-              icon: Icons.medical_information_outlined,
-              title: 'Yes, I have\nmedical reports',
-              description:
-                  'Provide your hormone test,\nultrasound and other clinical\ndetails for accurate prediction.',
-              buttonText: 'Continue with Reports →',
-              iconColor: riskGreen,
-              backgroundColor: const Color(0xFFEFFAF3),
-              buttonColor: riskGreen,
-              onPressed: () {
-                // We will add report upload here later.
-              },
             ),
 
   

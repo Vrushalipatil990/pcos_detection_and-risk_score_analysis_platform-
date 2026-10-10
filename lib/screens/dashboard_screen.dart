@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'risk_assessment_screen.dart';
+import '../services/notification_service.dart';
+
 const Color dashboardBackground = Color(0xFFFAF8FC);
 const Color dashboardPurple = Color(0xFF6C35C9);
 const Color dashboardPink = Color(0xFFE84D9B);
@@ -138,6 +140,15 @@ body: SafeArea(
         ),
 
         const SizedBox(height: 6),
+
+        ElevatedButton.icon(
+  onPressed: () async {
+    await NotificationService.requestPermission();
+    await NotificationService.showTestNotification();
+  },
+  icon: const Icon(Icons.notifications_active),
+  label: const Text('Test Notification'),
+),
 
         const Text(
           'Track your health, understand your body,\nand stay healthy.',
