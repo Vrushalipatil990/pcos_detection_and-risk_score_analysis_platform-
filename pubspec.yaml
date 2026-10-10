@@ -33,6 +33,10 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
+
+  clerk_flutter: ^0.0.18-beta
+  clerk_auth: ^0.0.18-beta
+  flutter_dotenv: ^6.0.1
   cupertino_icons: ^1.0.8
   http: ^1.6.0
   flutter_local_notifications: ^22.3.1
@@ -58,6 +62,7 @@ flutter:
 
   assets:
     - assets/images/
+    - .env
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

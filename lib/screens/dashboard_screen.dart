@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'risk_assessment_screen.dart';
 import '../services/notification_service.dart';
 
+import 'package:clerk_flutter/clerk_flutter.dart';
+
 const Color dashboardBackground = Color(0xFFFAF8FC);
 const Color dashboardPurple = Color(0xFF6C35C9);
 const Color dashboardPink = Color(0xFFE84D9B);
@@ -12,8 +14,23 @@ class DashboardScreen extends StatelessWidget {
 
   const DashboardScreen({
     super.key,
-    this.userName = 'Pooja',
+    this.userName = 'User',
   });
+Future<void> logout(BuildContext context) async {
+  debugPrint('LOGOUT BUTTON CLICKED');
+  final clerk = ClerkAuth.of(context);
+
+  debugPrint('BEFORE LOGOUT: ${clerk.user}');
+
+  try {
+    await clerk.signOut();
+
+    debugPrint('AFTER LOGOUT: ${clerk.user}');
+  } catch (e, stackTrace) {
+    debugPrint('LOGOUT ERROR: $e');
+    debugPrint('$stackTrace');
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -109,13 +126,21 @@ class DashboardScreen extends StatelessWidget {
 
       const Divider(),
 
-      ListTile(
-        leading: const Icon(Icons.logout),
-        title: const Text('Logout'),
-        onTap: () {
-          Navigator.pop(context);
-        },
-      ),
+   ListTile(
+  leading: const Icon(Icons.logout),
+  title: const Text('Logout'),
+  onTap: () async {
+    Navigator.pop(context); // Close the drawer
+
+    try {
+      final clerk = ClerkAuth.of(context);
+      await clerk.signOut();
+    } catch (e) {
+      debugPrint('Logout error: $e');
+    }
+  },
+),
+      
     ],
   ),
 ),

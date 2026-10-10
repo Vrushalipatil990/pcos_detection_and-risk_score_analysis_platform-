@@ -1,6 +1,12 @@
+import 'package:clerk_flutter/clerk_flutter.dart';
+import 'package:clerk_auth/clerk_auth.dart' as clerk_sdk;
+
+
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'dashboard_screen.dart';
+import 'email_verification_screen.dart';
+
+
 
 const Color pink = Color(0xFFE88BA8);
 const Color darkPink = Color(0xFFD96F91);
@@ -28,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    
     super.dispose();
   }
 
@@ -130,36 +137,74 @@ class _LoginScreenState extends State<LoginScreen> {
                     return;
                   }
 
-                  // Call backend
-                  final result = await AuthService.login(
-                    email: email,
-                    password: password,
-                  );
+try {
+  final clerk = ClerkAuth.of(context);
 
-                  if (!context.mounted) return;
+  debugPrint('PCOSense: Starting login...');
 
-                  // Login successful
-                  if (result['statusCode'] == 200) {
-                    final user = result['user'];
+  await clerk.attemptSignIn(
+  strategy: clerk_sdk.Strategy.password,
+  identifier: email.trim(),
+  password: password,
+);
 
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DashboardScreen(
-                          userName: user['fullName'],
-                        ),
-                      ),
-                    );
-                  } else {
-                    // Login failed
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          result['message'] ?? 'Login failed',
-                        ),
-                      ),
-                    );
-                  }
+debugPrint('PCOSense: Sign-in request completed.');
+debugPrint('PCOSense: User after login = ${clerk.user}');
+  debugPrint('PCOSense: User after login = ${clerk.user}');
+  debugPrint('Sign-in object: ${clerk.client.signIn}');
+debugPrint('Current user: ${clerk.user}');
+final signIn = clerk.client.signIn;
+
+if (!context.mounted) return;
+
+if (signIn?.needsSecondFactor == true) {
+  await clerk.attemptSignIn(
+    strategy: clerk_sdk.Strategy.emailCode,
+  );
+
+  if (!context.mounted) return;
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => EmailVerificationScreen(
+        email: email.trim(),
+        isLogin: true,
+      ),
+    ),
+  );
+  return;
+}
+
+debugPrint('PCOSense: Sign-in status = ${signIn?.status}');
+debugPrint('PCOSense: Needs first factor = ${signIn?.needsFirstFactor}');
+debugPrint('PCOSense: Needs second factor = ${signIn?.needsSecondFactor}');
+debugPrint(
+  'PCOSense: First factor verification = ${signIn?.firstFactorVerification}',
+);
+  if (!context.mounted) return;
+
+  if (clerk.user == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Sign-in did not establish a session. Check the terminal.',
+        ),
+      ),
+    );
+  }
+} catch (e, stackTrace) {
+  debugPrint('PCOSense: LOGIN ERROR: $e');
+  debugPrint('PCOSense: STACK TRACE: $stackTrace');
+
+  if (!context.mounted) return;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Login failed: $e'),
+    ),
+  );
+}
                 },
 
                 style: ElevatedButton.styleFrom(
@@ -179,6 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
 // ------------------------------------------------------------
 // SIGN UP SCREEN
 // ------------------------------------------------------------
@@ -199,12 +245,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final TextEditingController passwordController =
       TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  bool _isConfirmPasswordVisible = false;
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
     fullNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -262,19 +312,61 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
             const SizedBox(height: 16),
 
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                prefixIcon: const Icon(Icons.lock_outline),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-            ),
+TextField(
+  controller: passwordController,
+  obscureText: !_isPasswordVisible,
+  decoration: InputDecoration(
+    labelText: 'Password',
+    prefixIcon: const Icon(Icons.lock_outline),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15),
+    ),
+    suffixIcon: IconButton(
+      icon: Icon(
+        _isPasswordVisible
+            ? Icons.visibility
+            : Icons.visibility_off,
+      ),
+      onPressed: () {
+        setState(() {
+          _isPasswordVisible = !_isPasswordVisible;
+        });
+      },
+    ),
+  ),
+),
 
-            const SizedBox(height: 25),
+const SizedBox(height: 16),
+
+const SizedBox(height: 16),
+
+TextField(
+  controller: confirmPasswordController,
+  obscureText: !_isConfirmPasswordVisible,
+  decoration: InputDecoration(
+    labelText: 'Confirm Password',
+    prefixIcon: const Icon(Icons.lock_outline),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(15),
+    ),
+    suffixIcon: IconButton(
+      icon: Icon(
+        _isConfirmPasswordVisible
+            ? Icons.visibility
+            : Icons.visibility_off,
+      ),
+      onPressed: () {
+        setState(() {
+          _isConfirmPasswordVisible =
+              !_isConfirmPasswordVisible;
+        });
+      },
+    ),
+  ),
+),
+
+const SizedBox(height: 25),
+
 
             SizedBox(
               width: double.infinity,
@@ -392,23 +484,74 @@ if (!nameRegex.hasMatch(fullName)) {
     );
     return;
   }
+final confirmPassword = confirmPasswordController.text;
 
-  // Everything is valid → call backend
-  final result = await AuthService.signup(
-    fullName: fullName,
-    email: email,
-    password: password,
+if (confirmPassword.isEmpty) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Please confirm your password'),
+    ),
+  );
+  return;
+}
+
+if (password != confirmPassword) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Passwords do not match'),
+    ),
+  );
+  return;
+}
+
+  if (!context.mounted) return;
+
+// Create the Clerk account
+try {
+  final clerk = ClerkAuth.of(context);
+
+  await clerk.safelyCall(
+    context,
+    () => clerk.attemptSignUp(
+      strategy: clerk_sdk.Strategy.password,
+      firstName: fullName.split(' ').first,
+      lastName: fullName.split(' ').length > 1
+          ? fullName.split(' ').skip(1).join(' ')
+          : null,
+      emailAddress: email,
+      password: password,
+      passwordConfirmation: confirmPassword,
+    ),
   );
 
   if (!context.mounted) return;
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        result['message'] ?? 'Something went wrong',
+  final auth = ClerkAuth.of(context);
+
+  if (auth.client.signUp != null && auth.user == null) {
+    await auth.safelyCall(
+      context,
+      () => auth.attemptSignUp(
+        strategy: clerk_sdk.Strategy.emailCode,
       ),
-    ),
+    );
+
+    if (!context.mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EmailVerificationScreen(email: email),
+      ),
+    );
+  }
+} catch (e) {
+  if (!context.mounted) return;
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text('Signup failed: $e')),
   );
+}
 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: darkPink,

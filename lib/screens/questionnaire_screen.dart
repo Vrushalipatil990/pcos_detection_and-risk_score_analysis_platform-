@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
-const Color questionnairePurple = Color(0xFF6C35C9);
-const Color questionnaireDark = Color(0xFF1D1930);
-const Color questionnaireBackground = Color(0xFFFAF8FC);
+const Color questionnairePurple = Color(0xFFD96F91); // PCOSense pink
+const Color questionnaireDark = Color(0xFF30232A);
+const Color questionnaireBackground = Color(0xFFFFF7F9);
+
+const Color questionnaireGreen = Color(0xFF369B83);
+const Color questionnaireSoftPink = Color(0xFFFCE6ED);
+const Color questionnaireSoftGreen = Color(0xFFE5F5EF);
 
 class QuestionnaireScreen extends StatefulWidget {
   const QuestionnaireScreen({super.key});
@@ -13,6 +17,7 @@ class QuestionnaireScreen extends StatefulWidget {
 
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   int currentSection = 1;
+  String heightUnit = 'cm';
 
   // ============================================================
   // SECTION 1 - BASIC INFORMATION
@@ -256,50 +261,112 @@ class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   // SECTION 1
   // ============================================================
 
-  Widget _buildSection1() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  
+Widget _buildSection1() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildHeader(
+        icon: Icons.favorite_outline,
+        title: 'Let’s understand your health',
+        subtitle: 'Start with some basic information',
+      ),
+
+      const SizedBox(height: 24),
+
+      _buildInputCard(
+        icon: Icons.cake_outlined,
+        title: 'Age',
+        hint: 'Enter your age',
+        controller: ageController,
+        keyboardType: TextInputType.number,
+      ),
+
+      const SizedBox(height: 16),
+
+      _buildHeightInputCard(),
+
+      const SizedBox(height: 16),
+
+      _buildInputCard(
+        icon: Icons.monitor_weight_outlined,
+        title: 'Weight',
+        hint: 'Enter your weight',
+        suffix: 'kg',
+        controller: weightController,
+        keyboardType: TextInputType.number,
+      ),
+    ],
+  );
+}
+
+
+Widget _buildHeightInputCard() {
+  return Container(
+    padding: const EdgeInsets.all(18),
+    decoration: _cardDecoration(),
+    child: Row(
       children: [
-        _buildHeader(
-          icon: Icons.favorite_outline,
-          title: 'Let’s understand your health',
-          subtitle: 'Start with some basic information',
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: questionnaireSoftPink,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: const Icon(
+            Icons.height_outlined,
+            color: questionnairePurple,
+          ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(width: 14),
 
-        _buildInputCard(
-          icon: Icons.cake_outlined,
-          title: 'Age',
-          hint: 'Enter your age',
-          controller: ageController,
-          keyboardType: TextInputType.number,
+        Expanded(
+          child: TextField(
+            controller: heightController,
+            keyboardType: const TextInputType.numberWithOptions(
+              decimal: true,
+            ),
+            onChanged: (_) => setState(() {}),
+            decoration: const InputDecoration(
+              labelText: 'Height',
+              hintText: 'Enter your height',
+              border: InputBorder.none,
+              isDense: true,
+            ),
+          ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(width: 8),
 
-        _buildInputCard(
-          icon: Icons.height_outlined,
-          title: 'Height',
-          hint: 'Enter your height',
-          suffix: 'cm',
-          controller: heightController,
-          keyboardType: TextInputType.number,
-        ),
-
-        const SizedBox(height: 16),
-
-        _buildInputCard(
-          icon: Icons.monitor_weight_outlined,
-          title: 'Weight',
-          hint: 'Enter your weight',
-          suffix: 'kg',
-          controller: weightController,
-          keyboardType: TextInputType.number,
+        DropdownButton<String>(
+          value: heightUnit,
+          underline: const SizedBox(),
+          items: const [
+            DropdownMenuItem(
+              value: 'cm',
+              child: Text('cm'),
+            ),
+            DropdownMenuItem(
+              value: 'in',
+              child: Text('inches'),
+            ),
+          ],
+          onChanged: (value) {
+            if (value != null) {
+              setState(() {
+                heightUnit = value;
+              });
+            }
+          },
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+
 
   // ============================================================
   // SECTION 2
