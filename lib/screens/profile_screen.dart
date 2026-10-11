@@ -1,19 +1,13 @@
 import 'package:clerk_flutter/clerk_flutter.dart';
 import 'package:flutter/material.dart';
 
-// ============================================================
-// THEME (same values as the dashboard)
-// ============================================================
 const Color _bg = Color(0xFFFAF8FC);
-const Color _purple = Color(0xFF6C35C9);
 const Color _pink = Color(0xFFE84D9B);
+const Color _green = Color(0xFF2E7D5B);
 const Color _dark = Color(0xFF1D1930);
+const Color _softPink = Color(0xFFFFF1F6);
+const Color _softGreen = Color(0xFFEDF7F0);
 
-// ============================================================
-// DEMO HEALTH DATA
-// TODO: replace with real data saved from the risk assessment
-// (your backend or Clerk user metadata).
-// ============================================================
 class _HealthProfile {
   final int age;
   final double heightCm;
@@ -115,16 +109,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final navigator = Navigator.of(context);
 
     await clerk.signOut();
-
-    // The app's home switches to the landing page by itself once the
-    // user is signed out. This closes any screens still on top of it.
     navigator.popUntil((route) => route.isFirst);
   }
 
   @override
   Widget build(BuildContext context) {
     const profile = _demoProfile;
+    final clerk = ClerkAuth.of(context);
+final currentUser = clerk.user;
 
+final firstName = currentUser?.firstName ?? '';
+final lastName = currentUser?.lastName ?? '';
+final fullName = '$firstName $lastName'.trim();
+
+final displayName = fullName.isNotEmpty
+    ? fullName
+    : (widget.userName.trim().isNotEmpty
+        ? widget.userName.trim()
+        : 'User');
+
+final emailAddresses = currentUser?.emailAddresses;
+
+final displayEmail =
+    emailAddresses != null && emailAddresses.isNotEmpty
+        ? emailAddresses.first.emailAddress
+        : widget.email;
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(
@@ -140,7 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
           children: [
-            _buildHeaderCard(),
+            _buildHeaderCard(displayName, displayEmail),
             const SizedBox(height: 20),
 
             // Quick stats
@@ -216,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () => _comingSoon('Update health details'),
                 icon: const Icon(Icons.edit_outlined, size: 18),
                 label: const Text('Update details'),
-                style: TextButton.styleFrom(foregroundColor: _purple),
+                style: TextButton.styleFrom(foregroundColor: _pink),
               ),
             ),
             const SizedBox(height: 14),
@@ -281,7 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline, color: _purple, size: 20),
+                  Icon(Icons.info_outline, color: _pink, size: 20),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -325,7 +334,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // ----- Header card -----
-  Widget _buildHeaderCard() {
+ Widget _buildHeaderCard(String displayName, String displayEmail){
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -338,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           CircleAvatar(
             radius: 34,
-            backgroundColor: _purple,
+            backgroundColor: _pink,
             child: Text(
               _initials,
               style: const TextStyle(
@@ -354,7 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.userName,
+                  displayName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -381,8 +390,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: OutlinedButton(
                     onPressed: () => _comingSoon('Edit profile'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: _purple,
-                      side: const BorderSide(color: _purple),
+                      foregroundColor: _pink,
+                      side: const BorderSide(color: _pink),
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -486,7 +495,7 @@ class _StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: _purple, size: 22),
+          Icon(icon, color: _pink, size: 22),
           const SizedBox(height: 10),
           Text(
             label,
@@ -526,7 +535,7 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
-          Icon(icon, color: _purple, size: 22),
+          Icon(icon, color: _pink, size: 22),
           const SizedBox(width: 14),
           Expanded(
             child: Text(
@@ -568,7 +577,7 @@ class _SwitchRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          Icon(icon, color: _purple, size: 22),
+          Icon(icon, color: _pink, size: 22),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -592,7 +601,7 @@ class _SwitchRow extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: _purple,
+            activeThumbColor: _pink,
           ),
         ],
       ),
@@ -620,7 +629,7 @@ class _MenuRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: [
-            Icon(icon, color: _purple, size: 22),
+            Icon(icon, color: _pink, size: 22),
             const SizedBox(width: 14),
             Expanded(
               child: Text(

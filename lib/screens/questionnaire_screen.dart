@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'assessment_complete_screen.dart';
 
 const Color questionnairePurple = Color(0xFFD96F91); // PCOSense pink
 const Color questionnaireDark = Color(0xFF30232A);
@@ -102,41 +103,48 @@ bool get section3Complete =>
     super.dispose();
   }
 
-  void nextSection() {
-    if (currentSection == 1 && !section1Complete) {
-      _showMessage('Please complete all fields to continue.');
-      return;
-    }
 
-    if (currentSection == 2 && !section2Complete) {
-      _showMessage('Please answer all questions to continue.');
-      return;
-    }
-
-    if (currentSection == 3 && !section3Complete) {
-      _showMessage('Please answer all questions to continue.');
-      return;
-    }
-
-    if (currentSection == 4 && !section4Complete) {
-      _showMessage('Please answer all questions to continue.');
-      return;
-    }
-
-    if (currentSection == 5) {
-      if (!section5Complete) {
-        _showMessage('Please answer all questions to continue.');
-        return;
-      }
-
-      _showMessage('Assessment completed successfully!');
-      return;
-    }
-
-    setState(() {
-      currentSection++;
-    });
+void nextSection() {
+  if (currentSection == 1 && !section1Complete) {
+    _showMessage('Please complete all fields to continue.');
+    return;
   }
+
+  if (currentSection == 2 && !section2Complete) {
+    _showMessage('Please answer all questions to continue.');
+    return;
+  }
+
+  if (currentSection == 3 && !section3Complete) {
+    _showMessage('Please answer all questions to continue.');
+    return;
+  }
+
+  if (currentSection == 4 && !section4Complete) {
+    _showMessage('Please answer all questions to continue.');
+    return;
+  }
+
+  if (currentSection == 5) {
+    if (!section5Complete) {
+      _showMessage('Please answer all questions to continue.');
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AssessmentCompleteScreen(),
+      ),
+    );
+    return;
+  }
+
+  setState(() {
+    currentSection++;
+  });
+}
+
 
   void previousSection() {
     if (currentSection > 1) {
@@ -2050,16 +2058,6 @@ Widget _buildLifestyleMultiCard({
     } else {
       complete = false;
     }
-    if (currentSection == 4) {
-  debugPrint('Exercise days: $exerciseDays');
-  debugPrint('Exercise duration: $exerciseDuration');
-  debugPrint('Activity type: $activityType');
-  debugPrint('Sleep: $sleepHours');
-  debugPrint('Stress: $stressLevel');
-  debugPrint('Sugary food: $sugaryFoodFrequency');
-  debugPrint('Fast food: $fastFoodFrequency');
-  debugPrint('Section 4 complete: $section4Complete');
-}
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
       decoration: BoxDecoration(

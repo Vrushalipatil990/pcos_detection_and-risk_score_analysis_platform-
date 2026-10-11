@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'risk_assessment_screen.dart';
 import '../services/notification_service.dart';
+import 'profile_screen.dart';
 
 import 'package:clerk_flutter/clerk_flutter.dart';
 
@@ -10,12 +11,13 @@ const Color dashboardPink = Color(0xFFE84D9B);
 const Color dashboardDark = Color(0xFF1D1930);
 
 class DashboardScreen extends StatelessWidget {
-  final String userName;
+  final String? userName;
 
-  const DashboardScreen({
-    super.key,
-    this.userName = 'User',
-  });
+const DashboardScreen({
+  super.key,
+  this.userName,
+});
+
 Future<void> logout(BuildContext context) async {
   debugPrint('LOGOUT BUTTON CLICKED');
   final clerk = ClerkAuth.of(context);
@@ -34,6 +36,15 @@ Future<void> logout(BuildContext context) async {
 
   @override
   Widget build(BuildContext context) {
+    final clerk = ClerkAuth.of(context);
+final currentUser = clerk.user;
+
+final String displayName =
+    '${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}'
+        .trim()
+        .isNotEmpty
+    ? '${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}'.trim()
+    : (userName?.trim().isNotEmpty == true ? userName!.trim() : 'User');
     return Scaffold(
       backgroundColor: dashboardBackground,
 
@@ -51,7 +62,7 @@ Future<void> logout(BuildContext context) async {
         backgroundColor: dashboardBackground,
         elevation: 0,
         title: const Text(
-          'ExplainPCOS AI',
+          'PCOSense',
           style: TextStyle(
             color: dashboardPurple,
             fontWeight: FontWeight.bold,
@@ -117,12 +128,20 @@ Future<void> logout(BuildContext context) async {
       ),
 
       ListTile(
-        leading: const Icon(Icons.person),
-        title: const Text('Profile'),
-        onTap: () {
-          Navigator.pop(context);
-        },
+  leading: const Icon(Icons.person),
+  title: const Text('Profile'),
+  onTap: () {
+    
+    Navigator.pop(context);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ProfileScreen(),
       ),
+    );
+  },
+),
 
       const Divider(),
 
@@ -156,7 +175,7 @@ body: SafeArea(
         
         // Greeting
         Text(
-          'Hello, $userName! 👋',
+  'Hello, $displayName! 👋',
           style: const TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.bold,
