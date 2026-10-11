@@ -3,6 +3,7 @@ import 'package:clerk_auth/clerk_auth.dart' as clerk_sdk;
 
 
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 import 'email_verification_screen.dart';
 
 
