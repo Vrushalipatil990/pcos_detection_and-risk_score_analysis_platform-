@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 import 'package:flutter/services.dart';
-import 'assessment_complete_screen.dart';
+import 'recommendation_screen.dart';
 
 const Color questionnairePurple = Color(0xFFD96F91); // PCOSense pink
 const Color questionnaireDark = Color(0xFF30232A);
@@ -20,6 +21,7 @@ class QuestionnaireScreen extends StatefulWidget {
 class _QuestionnaireScreenState extends State<QuestionnaireScreen> {
   int currentSection = 1;
   String heightUnit = 'cm';
+  bool isSubmitting = false;
   String? cycleLength;
 String? painfulPeriods;
 Set<String> acneLocations = {};
@@ -70,7 +72,9 @@ bool get section1Complete {
 bool get section2Complete =>
     cycleLength != null &&
     periodRegularity != null &&
+    missedPeriods != null &&
     periodDuration != null &&
+    periodChange != null &&
     painfulPeriods != null &&
     heavyBleeding != null;
 
@@ -104,47 +108,145 @@ bool get section3Complete =>
   }
 
 
-void nextSection() {
+Future<void> nextSection() async {
   if (currentSection == 1 && !section1Complete) {
     _showMessage('Please complete all fields to continue.');
     return;
   }
-
   if (currentSection == 2 && !section2Complete) {
-    _showMessage('Please answer all questions to continue.');
+    _showMessage('Please answer all menstrual health questions to continue.');
     return;
   }
-
   if (currentSection == 3 && !section3Complete) {
-    _showMessage('Please answer all questions to continue.');
+    _showMessage('Please answer all symptom questions to continue.');
     return;
   }
-
   if (currentSection == 4 && !section4Complete) {
-    _showMessage('Please answer all questions to continue.');
+    _showMessage('Please answer all lifestyle questions to continue.');
     return;
   }
+  if (currentSection < 5) {
+    setState(() => currentSection++);
+    return;
+  }
+  if (!section5Complete) {
+    _showMessage('Please answer all diet and health history questions to continue.');
+    return;
+  }
+  if (isSubmitting) return;
 
-  if (currentSection == 5) {
-    if (!section5Complete) {
-      _showMessage('Please answer all questions to continue.');
-      return;
-    }
+  final age = double.tryParse(ageController.text.trim());
+  final height = double.tryParse(heightController.text.trim());
+  final weight = double.tryParse(weightController.text.trim());
+  if (age == null || height == null || weight == null || age < 10 || age > 100 || height <= 0 || weight <= 0) {
+    _showMessage('Please enter valid age, height, and weight values.');
+    return;
+  }
+  final heightCm = heightUnit == 'in' ? height * 2.54 : height;
+  if (heightCm < 50 || heightCm > 250 || weight < 10 || weight > 500) {
+    _showMessage('Please check your height and weight values.');
+    return;
+  }
+  final heightMetres = heightCm / 100;
+  final bmi = weight / (heightMetres * heightMetres);
+  final bmiRounded = double.parse(bmi.toStringAsFixed(2));
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AssessmentCompleteScreen(),
+  // Keep the prediction payload aligned with the existing survey-model API.
+  final questionnaireData = <String, dynamic>{
+    'age': age.toInt(),
+    'bmi': bmiRounded,
+    'period_regularity': periodRegularity == 'Not sure' ? 'Not Sure' : periodRegularity,
+    'missed_periods': missedPeriods,
+    'period_length': periodDuration,
+    'period_change': periodChange == 'Not sure' ? 'Not sure' : periodChange!.toLowerCase(),
+    'heavy_bleeding': heavyBleeding == 'Not sure' ? 'Not Sure' : heavyBleeding,
+    'facial_body_hair': facialHair!.toLowerCase(),
+    'acne': acne == 'No acne' ? 'No' : (acne == 'Not sure' ? 'Not Sure' : acne),
+    'hair_loss': hairLoss!.toLowerCase(),
+    'weight_gain': weightGain!.toLowerCase(),
+    'dark_thickened_skin': darkSkin!.toLowerCase(),
+    'family_pcos': familyPCOS == 'I don’t know' ? "Don't Know" : familyPCOS,
+  };
+
+  setState(() => isSubmitting = true);
+  try {
+    final result = await AuthService.predictPCOS(questionnaireData: questionnaireData);
+    if (!mounted) return;
+    setState(() => isSubmitting = false);
+
+    final riskLevel = result['risk_level'] ?? 'Unavailable';
+    final probability = result['pcos_probability'];
+    final interpretation = result['interpretation'] ?? 'The prediction was completed.';
+    final note = result['note'] ?? 'This is a screening estimate, not a medical diagnosis.';
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Your PCOS Risk Assessment'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Risk level: $riskLevel'),
+              const SizedBox(height: 8),
+              Text('Model probability: ${probability == null ? 'Unavailable' : '$probability%'}'),
+              const SizedBox(height: 12),
+              Text('$interpretation'),
+              const SizedBox(height: 12),
+              Text('$note', style: const TextStyle(fontSize: 12)),
+              const SizedBox(height: 16),
+              const Text('This screening result does not replace assessment by a qualified healthcare professional.'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Close'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => RecommendationScreen(
+                    questionnaireData: <String, dynamic>{
+                      'dietType': dietType,
+                      'mealsPerDay': mealsPerDay,
+                      'sugarCravings': sugarCravings,
+                      'sugaryFoodFrequency': sugaryFoodFrequency,
+                      'fastFoodFrequency': fastFoodFrequency,
+                      'fruitsVegetables': fruitsVegetables,
+                      'exerciseDays': exerciseDays,
+                      'exerciseDuration': exerciseDuration,
+                      'activityType': activityType,
+                      'sleepHours': sleepHours,
+                      'stressLevel': stressLevel,
+                      'bmi': bmiRounded,
+                    },
+                  ),
+                ),
+              );
+            },
+            child: const Text('View Recommendations'),
+          ),
+        ],
       ),
     );
-    return;
+  
+  } catch (error, stackTrace) {
+    debugPrint('PCOS ASSESSMENT ERROR: $error');
+    debugPrint('STACK TRACE: $stackTrace');
+
+    if (!mounted) return;
+
+    setState(() => isSubmitting = false);
+
+    _showMessage('Assessment failed: $error');
   }
 
-  setState(() {
-    currentSection++;
-  });
 }
-
 
   void previousSection() {
     if (currentSection > 1) {
@@ -470,6 +572,26 @@ Widget _buildSection2() {
         onChanged: (value) {
           setState(() => periodDuration = value);
         },
+      ),
+
+      _buildSpacing(),
+
+      _buildInlineChoiceCard(
+        icon: Icons.event_busy_outlined,
+        title: 'How often do you miss a period?',
+        options: ['Never', 'Rarely', 'Sometimes', 'Frequently', 'Not sure'],
+        selectedValue: missedPeriods,
+        onSelected: (value) => setState(() => missedPeriods = value),
+      ),
+
+      _buildSpacing(),
+
+      _buildInlineChoiceCard(
+        icon: Icons.update_outlined,
+        title: 'Have your periods changed over the last year?',
+        options: ['Yes', 'No', 'Not sure'],
+        selectedValue: periodChange,
+        onSelected: (value) => setState(() => periodChange = value),
       ),
 
       _buildSpacing(),
@@ -2074,7 +2196,7 @@ Widget _buildLifestyleMultiCard({
         width: double.infinity,
         height: 54,
         child: ElevatedButton(
-          onPressed: complete ? nextSection : null,
+          onPressed: complete && !isSubmitting ? nextSection : null,
           style: ElevatedButton.styleFrom(
             backgroundColor: questionnairePurple,
             disabledBackgroundColor: const Color(0xFFD8D3DF),
@@ -2089,7 +2211,7 @@ Widget _buildLifestyleMultiCard({
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                currentSection == 5 ? 'Finish Assessment' : 'Continue',
+                currentSection == 5 ? (isSubmitting ? 'Submitting...' : 'Get Risk Assessment') : 'Continue',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -2154,15 +2276,3 @@ bool get section5Complete =>
     doctorDiagnosis != null;
 
 }
-// ============================================================
-// SECTION 4 - LIFESTYLE
-// ============================================================
-
-String? exerciseDays;
-String? exerciseDuration;
-String? activityType;
-String? sleepHours;
-String? stressLevel;
-String? sugaryFoodFrequency;
-String? fastFoodFrequency;
-
