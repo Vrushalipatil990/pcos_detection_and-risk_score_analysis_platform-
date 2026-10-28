@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'risk_assessment_screen.dart';
 import '../services/notification_service.dart';
 import 'profile_screen.dart';
+import 'periods_screen.dart';
 
 import 'package:clerk_flutter/clerk_flutter.dart';
 
@@ -295,34 +296,53 @@ body: SafeArea(
   ),
 ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: dashboardPurple,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month_outlined),
-            activeIcon: Icon(Icons.calendar_month),
-            label: 'Periods',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant_menu_outlined),
-            activeIcon: Icon(Icons.restaurant_menu),
-            label: 'Nutrition',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      
+bottomNavigationBar: BottomNavigationBar(
+  currentIndex: 0,
+  selectedItemColor: dashboardPurple,
+  unselectedItemColor: Colors.grey,
+  type: BottomNavigationBarType.fixed,
+  onTap: (index) {
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PeriodsScreen(),
+        ),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfileScreen(),
+        ),
+      );
+    }
+  },
+  items: const [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home_outlined),
+      activeIcon: Icon(Icons.home),
+      label: 'Home',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.calendar_month_outlined),
+      activeIcon: Icon(Icons.calendar_month),
+      label: 'Periods',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.restaurant_menu_outlined),
+      activeIcon: Icon(Icons.restaurant_menu),
+      label: 'Nutrition',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.person_outline),
+      activeIcon: Icon(Icons.person),
+      label: 'Profile',
+    ),
+  ],
+),
+
     );
   }
 
